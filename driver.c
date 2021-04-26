@@ -43,15 +43,15 @@ unsigned long old_jiffie = 0;
 #define GPIO_21_OUT (21)
 
 //IR Sensor is connected to this GPIO
-#define GPIO_25_IN  (25)
+#define GPIO_16_IN  (16)
 
-//GPIO_25_IN value toggle
+//GPIO_16_IN value toggle
 unsigned int led_toggle = 0; 
 
 //This used for storing the IRQ number for the GPIO
 unsigned int GPIO_irqNumber;
 
-//Interrupt handler for GPIO 25. This will be called whenever there is a raising edge detected. 
+//Interrupt handler for GPIO 16. This will be called whenever there is a raising edge detected. 
 static irqreturn_t gpio_irq_handler(int irq,void *dev_id) 
 {
   static unsigned long flags = 0;
@@ -220,19 +220,19 @@ static int __init atd_driver_init(void)
   
   //Input GPIO configuratioin
   //Checking the GPIO is valid or not
-  if(gpio_is_valid(GPIO_25_IN) == false){
-    pr_err("GPIO %d is not valid\n", GPIO_25_IN);
+  if(gpio_is_valid(GPIO_16_IN) == false){
+    pr_err("GPIO %d is not valid\n", GPIO_16_IN);
     goto r_gpio_in;
   }
   
   //Requesting the GPIO
-  if(gpio_request(GPIO_25_IN,"GPIO_25_IN") < 0){
-    pr_err("ERROR: GPIO %d request\n", GPIO_25_IN);
+  if(gpio_request(GPIO_16_IN,"GPIO_16_IN") < 0){
+    pr_err("ERROR: GPIO %d request\n", GPIO_16_IN);
     goto r_gpio_in;
   }
   
   //configure the GPIO as input
-  gpio_direction_input(GPIO_25_IN);
+  gpio_direction_input(GPIO_16_IN);
   
   /*
   ** I have commented the below few lines, as gpio_set_debounce is not supported 
@@ -240,14 +240,14 @@ static int __init atd_driver_init(void)
   */ 
 #ifndef EN_DEBOUNCE
   //Debounce the button with a delay of 200ms
-  if(gpio_set_debounce(GPIO_25_IN, 200) < 0){
-    pr_err("ERROR: gpio_set_debounce - %d\n", GPIO_25_IN);
+  if(gpio_set_debounce(GPIO_16_IN, 200) < 0){
+    pr_err("ERROR: gpio_set_debounce - %d\n", GPIO_16_IN);
     //goto r_gpio_in;
   }
 #endif
   
   //Get the IRQ number for our GPIO
-  GPIO_irqNumber = gpio_to_irq(GPIO_25_IN);
+  GPIO_irqNumber = gpio_to_irq(GPIO_16_IN);
   pr_info("GPIO_irqNumber = %d\n", GPIO_irqNumber);
   
   if (request_irq(GPIO_irqNumber,             //IRQ number
@@ -265,7 +265,7 @@ static int __init atd_driver_init(void)
   return 0;
 
 r_gpio_in:
-  gpio_free(GPIO_25_IN);
+  gpio_free(GPIO_16_IN);
 r_gpio_out:
   gpio_free(GPIO_21_OUT);
 r_device:
@@ -286,7 +286,7 @@ r_unreg:
 static void __exit atd_driver_exit(void)
 {
   free_irq(GPIO_irqNumber,NULL);
-  gpio_free(GPIO_25_IN);
+  gpio_free(GPIO_16_IN);
   gpio_free(GPIO_21_OUT);
   device_destroy(dev_class,dev);
   class_destroy(dev_class);

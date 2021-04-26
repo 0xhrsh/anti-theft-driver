@@ -1,0 +1,7 @@
+pi.py
+*.cmd
+*.mod*
+driver.ko
+*.o
+Module*
+modules.*
