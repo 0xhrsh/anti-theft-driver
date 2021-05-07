@@ -136,7 +136,10 @@ static ssize_t atd_read(struct file *filp,
   if( copy_to_user(buf, &gpio_state, len) > 0) {
     pr_err("ERROR: Not all the bytes have been copied to user\n");
   }
-  
+    
+    
+
+    
   pr_info("Read function : GPIO_21 = %d \n", gpio_state);
   
   return 0;
@@ -145,9 +148,7 @@ static ssize_t atd_read(struct file *filp,
 /*
 ** This function will be called when we write the Device file
 */
-static ssize_t atd_write(struct file *filp, 
-                const char __user *buf, size_t len, loff_t *off)
-{
+static ssize_t atd_write(struct file *filp, const char __user *buf, size_t len, loff_t *off){
   uint8_t rec_buf[10] = {0};
   
   if( copy_from_user( rec_buf, buf, len ) > 0) {
@@ -158,6 +159,25 @@ static ssize_t atd_write(struct file *filp,
   
   if (rec_buf[0]=='1') {
     //set the GPIO value to HIGH
+    int rc;
+
+    // static char *envp[] = {
+    //     "SHELL=/bin/bash",
+    //     "HOME=/home/harsh",
+    //     "USER=harsh",
+    //     "PATH=/home/harsh/bin:/home/harsh/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/harsh",
+    //     "DISPLAY=:0",
+    //     "PWD=/home/harsh", 
+    //     NULL};
+    char *envp[] = {"HOME=/", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL};
+
+    char *argv[] = {"/home/harsh/anti_theft_driver/webhook.o", "" ,NULL};
+
+    rc = call_usermodehelper(argv[0], argv, envp, 2);
+    printk("RC is: %i \n", rc);
+    
+    pr_info("Call usermod : = %d\n", rec_buf[0]);
+
     gpio_set_value(GPIO_21_OUT, 1);
   } else if (rec_buf[0]=='0') {
     //set the GPIO value to LOW
