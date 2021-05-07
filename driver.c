@@ -158,20 +158,10 @@ static ssize_t atd_write(struct file *filp, const char __user *buf, size_t len, 
   pr_info("Write Function : GPIO_21 Set = %c\n", rec_buf[0]);
   
   if (rec_buf[0]=='1') {
-    //set the GPIO value to HIGH
     int rc;
 
-    // static char *envp[] = {
-    //     "SHELL=/bin/bash",
-    //     "HOME=/home/harsh",
-    //     "USER=harsh",
-    //     "PATH=/home/harsh/bin:/home/harsh/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/harsh",
-    //     "DISPLAY=:0",
-    //     "PWD=/home/harsh", 
-    //     NULL};
     char *envp[] = {"HOME=/", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL};
-
-    char *argv[] = {"/home/harsh/anti_theft_driver/webhook.o", "" ,NULL};
+    char *argv[] = {"/usr/bin/webhook", NULL};
 
     rc = call_usermodehelper(argv[0], argv, envp, 2);
     printk("RC is: %i \n", rc);

@@ -1,12 +1,9 @@
 #include <unistd.h>
 #include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h> 
-#include <stdlib.h>
-#include <errno.h>  
-#include <sys/wait.h>
 
 int main(){
-    char * arg[] = {"curl", "-d", "content=from_c_file", "-X", "POST", "https://discord.com/api/webhooks/840022099321815070/_1FtciEWBhvgPKWAcQVS9b8hPR9NpawiBXeQx4wh0l5STkNY8ziHFHRg-StP8dkFrVVX"};
+    char * arg[] = {"curl", "-d", "content=Movement Detected by IR sensor!", "-X", "POST", "https://discord.com/api/webhooks/840316032106889267/ISh3biozpeUtgjNq5lub37WYSU2ZuawkUKbhC5J9tWbX0OM1kAenGZp74L3qZ2FhfJiY"};
     execvp("curl", arg);
+
+    return 0;
 }
