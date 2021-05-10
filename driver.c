@@ -1,11 +1,11 @@
 /***************************************************************************//**
-*  \file       driver.c
+*  \author     Dhruv Patel, Harsh Anand and Yashvi Ramanuj
 *
+*  \file       driver.c
 *  \details    Simple Anit-Theft-Driver using GPIO Interrupt
 *
-*  \author     Dhruv Patel Harsh Anand Yashvi Ramanuj
 *
-*  \Tested with Linux XX raspberrypi XX
+*  \Tested with Linux 5.10.17-v7l+ raspberrypi XX
 *
 *******************************************************************************/
 #include <linux/kernel.h>
@@ -19,25 +19,10 @@
 #include <linux/uaccess.h>  //copy_to/from_user()
 #include <linux/gpio.h>     //GPIO
 #include <linux/interrupt.h>
-
-/* Since debounce is not supported in Raspberry pi, I have addded this to disable 
-** the false detection (multiple IRQ trigger for one interrupt).
-** Many other hardware supports GPIO debounce, I don't want care about this even 
-** if this has any overhead. Our intention is to explain the GPIO interrupt.
-** If you want to disable this extra coding, you can comment the below macro.
-** This has been taken from : https://raspberrypi.stackexchange.com/questions/8544/gpio-interrupt-debounce
-**
-** If you want to use Hardaware Debounce, then comment this EN_DEBOUNCE.
-**
-*/
-#define EN_DEBOUNCE
-
-#ifdef EN_DEBOUNCE
 #include <linux/jiffies.h>
 
 extern unsigned long volatile jiffies;
 unsigned long old_jiffie = 0;
-#endif
 
 //LED is connected to this GPIO
 #define GPIO_21_OUT (21)
@@ -54,17 +39,14 @@ unsigned int GPIO_irqNumber;
 //Interrupt handler for GPIO 16. This will be called whenever there is a raising edge detected. 
 static irqreturn_t gpio_irq_handler(int irq,void *dev_id) 
 {
-  static unsigned long flags = 0;
   
-#ifdef EN_DEBOUNCE
-   unsigned long diff = jiffies - old_jiffie;
+  unsigned long diff = jiffies - old_jiffie;
+  
+  static unsigned long flags = 0;
    if (diff < 20)
-   {
      return IRQ_HANDLED;
-   }
   
   old_jiffie = jiffies;
-#endif  
 
   local_irq_save(flags);
   led_toggle = (0x01 ^ led_toggle);                             // toggle the old value
@@ -107,7 +89,7 @@ static struct file_operations fops =
 */ 
 static int atd_open(struct inode *inode, struct file *file)
 {
-  pr_info("Device File Opened...!!!\n");
+  pr_info("ADT-Device File Opened.\n");
   return 0;
 }
 
@@ -116,7 +98,7 @@ static int atd_open(struct inode *inode, struct file *file)
 */ 
 static int atd_release(struct inode *inode, struct file *file)
 {
-  pr_info("Device File Closed...!!!\n");
+  pr_info("ADT-Device File Closed.\n");
   return 0;
 }
 
@@ -244,17 +226,11 @@ static int __init atd_driver_init(void)
   //configure the GPIO as input
   gpio_direction_input(GPIO_16_IN);
   
-  /*
-  ** I have commented the below few lines, as gpio_set_debounce is not supported 
-  ** in the Raspberry pi. So we are using EN_DEBOUNCE to handle this in this driver.
-  */ 
-#ifndef EN_DEBOUNCE
   //Debounce the button with a delay of 200ms
   if(gpio_set_debounce(GPIO_16_IN, 200) < 0){
     pr_err("ERROR: gpio_set_debounce - %d\n", GPIO_16_IN);
     //goto r_gpio_in;
   }
-#endif
   
   //Get the IRQ number for our GPIO
   GPIO_irqNumber = gpio_to_irq(GPIO_16_IN);
